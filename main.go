@@ -9,6 +9,11 @@ import (
 func main() {
 	cfg := config.LoadConfig()
 
+	db := config.ConnectDatabase(cfg)
+
+	sqlDB, _ := db.DB()
+	defer sqlDB.Close()
+
 	fmt.Println("Digital Channel Monitoring System")
 	fmt.Printf("Environment: %s\n", cfg.AppEnv)
 	fmt.Printf("Server akan berjalan di port: %s\n", cfg.AppPort)
