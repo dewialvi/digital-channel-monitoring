@@ -1,0 +1,16 @@
+# Binary
+digital-channel-monitoring
+*.exe
+
+# Environment
+.env
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+
+# Logs
+*.log
