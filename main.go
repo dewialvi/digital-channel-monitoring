@@ -1,7 +1,15 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/dewialvi/digital-channel-monitoring/config"
+)
 
 func main() {
-	fmt.Println("Digital Channel Monitoring System - Setup Berhasil!")
+	cfg := config.LoadConfig()
+
+	fmt.Println("Digital Channel Monitoring System")
+	fmt.Printf("Environment: %s\n", cfg.AppEnv)
+	fmt.Printf("Server akan berjalan di port: %s\n", cfg.AppPort)
 }
