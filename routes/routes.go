@@ -8,23 +8,54 @@ import (
 	"github.com/dewialvi/digital-channel-monitoring/middleware"
 )
 
-func SetupRoutes(e *echo.Echo, authHandler *handler.AuthHandler, cfg *config.Config) {
+func SetupRoutes(
+	e *echo.Echo,
+	authHandler *handler.AuthHandler,
+	bugHandler *handler.BugReportHandler,
+	cfg *config.Config,
+) {
 	api := e.Group("/api/v1")
 
-	// Public routes
-	// Tidak membutuhkan login
+	// =========================
+	// PUBLIC ROUTES
+	// =========================
+
 	api.POST("/register", authHandler.Register)
 	api.POST("/login", authHandler.Login)
 
-	// Protected routes
-	// Membutuhkan JWT
+	// =========================
+	// PROTECTED ROUTES
+	// =========================
+
 	protected := api.Group("")
 	protected.Use(middleware.JWTMiddleware(cfg.JWTSecret))
 
+	// Auth
 	protected.POST("/logout", authHandler.Logout)
 
-	// Admin routes
-	// Membutuhkan JWT + role admin
+	// =========================
+	// BUG REPORT ROUTES
+	// =========================
+
+	// Create Bug Report
+	protected.POST("/bug-reports", bugHandler.Create)
+
+	// Get All Bug Reports
+	protected.GET("/bug-reports", bugHandler.GetAll)
+
+	// Get Bug Report By ID
+	protected.GET("/bug-reports/:id", bugHandler.GetByID)
+
+	// Update Bug Report Status
+	protected.PATCH("/bug-reports/:id/status", bugHandler.UpdateStatus)
+
+	// =========================
+	// ADMIN ROUTES
+	// =========================
+
 	admin := protected.Group("/admin")
 	admin.Use(middleware.RoleMiddleware("admin"))
+
+	// Delete Bug Report
+	admin.DELETE("/bug-reports/:id", bugHandler.Delete)
 }

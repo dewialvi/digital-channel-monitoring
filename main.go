@@ -23,39 +23,27 @@ func main() {
 
 	migrations.RunMigrations(db)
 
-	// Dependency Injection:
-	// Repository -> Service -> Handler
+	// Dependency Injection: Repository -> Service -> Handler
+
+	// Authentication
 	userRepo := repository.NewUserRepository(db)
+	authService := service.NewAuthService(userRepo, cfg)
+	authHandler := handler.NewAuthHandler(authService)
 
-	authService := service.NewAuthService(
-		userRepo,
-		cfg,
-	)
+	// Bug Report
+	bugReportRepo := repository.NewBugReportRepository(db)
+	bugReportService := service.NewBugReportService(bugReportRepo)
+	bugHandler := handler.NewBugReportHandler(bugReportService)
 
-	authHandler := handler.NewAuthHandler(
-		authService,
-	)
-
-	// Membuat Echo server
 	e := echo.New()
-
-	// Middleware bawaan Echo
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
-	// Setup semua routes
-	routes.SetupRoutes(
-		e,
-		authHandler,
-		cfg,
-	)
+	routes.SetupRoutes(e, authHandler, bugHandler, cfg)
 
 	fmt.Println("Digital Channel Monitoring System")
 	fmt.Printf("Environment: %s\n", cfg.AppEnv)
 	fmt.Printf("Server berjalan di http://localhost:%s\n", cfg.AppPort)
 
-	// Menjalankan server
-	e.Logger.Fatal(
-		e.Start(":" + cfg.AppPort),
-	)
+	e.Logger.Fatal(e.Start(":" + cfg.AppPort))
 }
