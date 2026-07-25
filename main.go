@@ -23,35 +23,101 @@ func main() {
 
 	migrations.RunMigrations(db)
 
-	// Dependency Injection: Repository -> Service -> Handler
+	// Dependency Injection:
+	// Repository -> Service -> Handler
 
-	// Authentication
+	// =========================
+	// AUTHENTICATION
+	// =========================
+
 	userRepo := repository.NewUserRepository(db)
-	authService := service.NewAuthService(userRepo, cfg)
-	authHandler := handler.NewAuthHandler(authService)
 
-	// Bug Report
+	authService := service.NewAuthService(
+		userRepo,
+		cfg,
+	)
+
+	authHandler := handler.NewAuthHandler(
+		authService,
+	)
+
+	// =========================
+	// BUG REPORT
+	// =========================
+
 	bugReportRepo := repository.NewBugReportRepository(db)
-	bugReportService := service.NewBugReportService(bugReportRepo)
-	bugHandler := handler.NewBugReportHandler(bugReportService)
+
+	bugReportService := service.NewBugReportService(
+		bugReportRepo,
+	)
+
+	bugHandler := handler.NewBugReportHandler(
+		bugReportService,
+	)
+
+	// =========================
+	// API MONITORING
+	// =========================
+
+	apiMonitorRepo := repository.NewAPIMonitorRepository(db)
+
+	apiMonitorHandler := handler.NewAPIMonitorHandler(
+		apiMonitorRepo,
+	)
+
+	// =========================
+	// TRANSACTION MONITORING
+	// =========================
+
+	transactionMonitorRepo := repository.NewTransactionMonitorRepository(db)
+
+	transactionMonitorHandler := handler.NewTransactionMonitorHandler(
+		transactionMonitorRepo,
+	)
+
+	// =========================
+	// ECHO SERVER
+	// =========================
 
 	e := echo.New()
+
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
-	routes.SetupRoutes(e, authHandler, bugHandler, cfg)
+	// =========================
+	// SETUP ROUTES
+	// =========================
+
+	routes.SetupRoutes(
+		e,
+		authHandler,
+		bugHandler,
+		apiMonitorHandler,
+		transactionMonitorHandler,
+		apiMonitorRepo,
+		cfg,
+	)
+
+	// =========================
+	// FRONTEND
+	// =========================
 
 	fmt.Println("Digital Channel Monitoring System")
 	fmt.Printf("Environment: %s\n", cfg.AppEnv)
-	fmt.Printf("Server berjalan di http://localhost:%s\n", cfg.AppPort)
+	fmt.Printf(
+		"Server berjalan di http://localhost:%s\n",
+		cfg.AppPort,
+	)
 
 	e.Static("/static", "static")
 
 	e.File("/login", "templates/login.html")
 
 	e.File("/dashboard", "templates/dashboard.html")
-	e.File("/bug-reports", "templates/bug-reports.html")
-	
 
-	e.Logger.Fatal(e.Start(":" + cfg.AppPort))
+	e.File("/bug-reports", "templates/bug-reports.html")
+
+	e.Logger.Fatal(
+		e.Start(":" + cfg.AppPort),
+	)
 }

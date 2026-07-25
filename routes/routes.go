@@ -6,14 +6,27 @@ import (
 	"github.com/dewialvi/digital-channel-monitoring/config"
 	"github.com/dewialvi/digital-channel-monitoring/handler"
 	"github.com/dewialvi/digital-channel-monitoring/middleware"
+	"github.com/dewialvi/digital-channel-monitoring/repository"
 )
 
 func SetupRoutes(
 	e *echo.Echo,
 	authHandler *handler.AuthHandler,
 	bugHandler *handler.BugReportHandler,
+	apiMonitorHandler *handler.APIMonitorHandler,
+	trxHandler *handler.TransactionMonitorHandler,
+	apiMonitorRepo *repository.APIMonitorRepository,
 	cfg *config.Config,
 ) {
+
+	// =========================
+	// API MONITORING MIDDLEWARE
+	// =========================
+
+	// Middleware dipasang secara global agar semua request
+	// tercatat ke tabel api_monitors.
+	e.Use(middleware.APIMonitorMiddleware(apiMonitorRepo))
+
 	api := e.Group("/api/v1")
 
 	// =========================
@@ -30,7 +43,10 @@ func SetupRoutes(
 	protected := api.Group("")
 	protected.Use(middleware.JWTMiddleware(cfg.JWTSecret))
 
-	// Auth
+	// =========================
+	// AUTH
+	// =========================
+
 	protected.POST("/logout", authHandler.Logout)
 
 	// =========================
@@ -48,6 +64,26 @@ func SetupRoutes(
 
 	// Update Bug Report Status
 	protected.PATCH("/bug-reports/:id/status", bugHandler.UpdateStatus)
+
+	// =========================
+	// MONITORING API ROUTES
+	// =========================
+
+	// Get API Monitoring Logs
+	protected.GET("/monitoring/api-logs", apiMonitorHandler.GetAll)
+
+	// Get API Monitoring Statistics
+	protected.GET("/monitoring/api-stats", apiMonitorHandler.GetStats)
+
+	// =========================
+	// TRANSACTION MONITORING
+	// =========================
+
+	// Create Transaction Monitoring
+	protected.POST("/monitoring/transactions", trxHandler.Create)
+
+	// Get Transaction Monitoring
+	protected.GET("/monitoring/transactions", trxHandler.GetAll)
 
 	// =========================
 	// ADMIN ROUTES
