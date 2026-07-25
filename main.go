@@ -41,19 +41,22 @@ func main() {
 		authService,
 	)
 
-	// =========================
-	// BUG REPORT
-	// =========================
+	// Activity Log
+activityLogRepo := repository.NewActivityLogRepository(db)
+activityLogService := service.NewActivityLogService(activityLogRepo)
+activityLogHandler := handler.NewActivityLogHandler(activityLogService)
 
-	bugReportRepo := repository.NewBugReportRepository(db)
+// Notification
+notificationService := service.NewNotificationService()
 
-	bugReportService := service.NewBugReportService(
-		bugReportRepo,
-	)
-
-	bugHandler := handler.NewBugReportHandler(
-		bugReportService,
-	)
+// Bug Report
+bugReportRepo := repository.NewBugReportRepository(db)
+bugReportService := service.NewBugReportService(
+	bugReportRepo,
+	activityLogService,
+	notificationService,
+)
+bugHandler := handler.NewBugReportHandler(bugReportService)
 
 	// =========================
 	// API MONITORING
@@ -94,6 +97,7 @@ func main() {
 		bugHandler,
 		apiMonitorHandler,
 		transactionMonitorHandler,
+		activityLogHandler,
 		apiMonitorRepo,
 		cfg,
 	)

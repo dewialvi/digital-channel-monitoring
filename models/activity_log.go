@@ -2,6 +2,12 @@ package models
 
 import "time"
 
+const (
+	ActivityCreateBug = "CREATE_BUG"
+	ActivityUpdateBug = "UPDATE_BUG"
+	ActivityDeleteBug = "DELETE_BUG"
+)
+
 type ActivityLog struct {
 	ID          uint      `json:"id" gorm:"primaryKey"`
 	UserID      uint      `json:"user_id" gorm:"not null"`

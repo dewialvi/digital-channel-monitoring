@@ -8,12 +8,20 @@ import (
 )
 
 type BugReportService struct {
-	Repo *repository.BugReportRepository
+	Repo                *repository.BugReportRepository
+	ActivityLogService  *ActivityLogService
+	NotificationService *NotificationService
 }
 
-func NewBugReportService(repo *repository.BugReportRepository) *BugReportService {
+func NewBugReportService(
+	repo *repository.BugReportRepository,
+	activityLogService *ActivityLogService,
+	notificationService *NotificationService,
+) *BugReportService {
 	return &BugReportService{
-		Repo: repo,
+		Repo:                repo,
+		ActivityLogService:  activityLogService,
+		NotificationService: notificationService,
 	}
 }
 
@@ -29,6 +37,7 @@ type CreateBugReportInput struct {
 }
 
 func (s *BugReportService) Create(input CreateBugReportInput) (*models.BugReport, error) {
+
 	bug := &models.BugReport{
 		ReportedBy:       input.ReportedBy,
 		Title:            input.Title,
@@ -44,10 +53,26 @@ func (s *BugReportService) Create(input CreateBugReportInput) (*models.BugReport
 		return nil, err
 	}
 
+	if s.ActivityLogService != nil {
+		_ = s.ActivityLogService.Log(
+			bug.ReportedBy,
+			models.ActivityCreateBug,
+			"Membuat bug report: "+bug.Title,
+		)
+	}
+
+	if s.NotificationService != nil {
+		s.NotificationService.SendNotification(
+			"admin@example.com",
+			"Bug baru dibuat: "+bug.Title,
+		)
+	}
+
 	return bug, nil
 }
 
 func (s *BugReportService) GetByID(id uint) (*models.BugReport, error) {
+
 	bug, err := s.Repo.FindByID(id)
 	if err != nil {
 		return nil, ErrBugNotFound
@@ -56,7 +81,10 @@ func (s *BugReportService) GetByID(id uint) (*models.BugReport, error) {
 	return bug, nil
 }
 
-func (s *BugReportService) GetAll(filter repository.BugReportFilter) ([]models.BugReport, int64, error) {
+func (s *BugReportService) GetAll(
+	filter repository.BugReportFilter,
+) ([]models.BugReport, int64, error) {
+
 	if filter.Page < 1 {
 		filter.Page = 1
 	}
@@ -68,7 +96,11 @@ func (s *BugReportService) GetAll(filter repository.BugReportFilter) ([]models.B
 	return s.Repo.FindAll(filter)
 }
 
-func (s *BugReportService) UpdateStatus(id uint, newStatus models.BugStatus) (*models.BugReport, error) {
+func (s *BugReportService) UpdateStatus(
+	id uint,
+	newStatus models.BugStatus,
+) (*models.BugReport, error) {
+
 	bug, err := s.Repo.FindByID(id)
 	if err != nil {
 		return nil, ErrBugNotFound
@@ -90,10 +122,29 @@ func (s *BugReportService) UpdateStatus(id uint, newStatus models.BugStatus) (*m
 		return nil, err
 	}
 
+	if s.ActivityLogService != nil {
+		_ = s.ActivityLogService.Log(
+			bug.ReportedBy,
+			models.ActivityUpdateBug,
+			"Mengubah status bug menjadi "+string(newStatus),
+		)
+	}
+
+	if s.NotificationService != nil {
+		s.NotificationService.SendNotification(
+			"admin@example.com",
+			"Status bug diperbarui menjadi "+string(newStatus),
+		)
+	}
+
 	return bug, nil
 }
 
-func isValidStatusTransition(current, next models.BugStatus) bool {
+func isValidStatusTransition(
+	current,
+	next models.BugStatus,
+) bool {
+
 	allowed := map[models.BugStatus][]models.BugStatus{
 		models.BugStatusNew: {
 			models.BugStatusAssigned,
@@ -129,10 +180,31 @@ func isValidStatusTransition(current, next models.BugStatus) bool {
 }
 
 func (s *BugReportService) Delete(id uint) error {
-	_, err := s.Repo.FindByID(id)
+
+	bug, err := s.Repo.FindByID(id)
 	if err != nil {
 		return ErrBugNotFound
 	}
 
-	return s.Repo.Delete(id)
+	err = s.Repo.Delete(id)
+	if err != nil {
+		return err
+	}
+
+	if s.ActivityLogService != nil {
+		_ = s.ActivityLogService.Log(
+			bug.ReportedBy,
+			models.ActivityDeleteBug,
+			"Menghapus bug report: "+bug.Title,
+		)
+	}
+
+	if s.NotificationService != nil {
+		s.NotificationService.SendNotification(
+			"admin@example.com",
+			"Bug berhasil dihapus",
+		)
+	}
+
+	return nil
 }

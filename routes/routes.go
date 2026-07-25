@@ -15,6 +15,7 @@ func SetupRoutes(
 	bugHandler *handler.BugReportHandler,
 	apiMonitorHandler *handler.APIMonitorHandler,
 	trxHandler *handler.TransactionMonitorHandler,
+	activityLogHandler *handler.ActivityLogHandler,
 	apiMonitorRepo *repository.APIMonitorRepository,
 	cfg *config.Config,
 ) {
@@ -84,6 +85,8 @@ func SetupRoutes(
 
 	// Get Transaction Monitoring
 	protected.GET("/monitoring/transactions", trxHandler.GetAll)
+
+	protected.GET("/activity-logs", activityLogHandler.GetAll)
 
 	// =========================
 	// ADMIN ROUTES
