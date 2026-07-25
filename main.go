@@ -45,5 +45,13 @@ func main() {
 	fmt.Printf("Environment: %s\n", cfg.AppEnv)
 	fmt.Printf("Server berjalan di http://localhost:%s\n", cfg.AppPort)
 
+	e.Static("/static", "static")
+
+	e.File("/login", "templates/login.html")
+
+	e.File("/dashboard", "templates/dashboard.html")
+	e.File("/bug-reports", "templates/bug-reports.html")
+	
+
 	e.Logger.Fatal(e.Start(":" + cfg.AppPort))
 }

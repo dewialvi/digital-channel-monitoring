@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Bug Reports - Digital Channel Monitoring</title>
+
+    <!-- Bootstrap 5 -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+</head>
+
+<body>
+
+    <!-- =========================
+         NAVBAR
+    ========================== -->
+    <nav class="navbar navbar-dark bg-dark px-3">
+        <span class="navbar-brand">
+            Digital Channel Monitoring
+        </span>
+
+        <div class="d-flex align-items-center">
+            <span
+                class="text-white me-3"
+                id="userName"
+            ></span>
+
+            <button
+                class="btn btn-outline-light btn-sm"
+                id="logoutBtn"
+            >
+                Logout
+            </button>
+        </div>
+    </nav>
+
+
+    <!-- =========================
+         MAIN LAYOUT
+    ========================== -->
+    <div class="container-fluid">
+
+        <div class="row">
+
+            <!-- =========================
+                 SIDEBAR
+            ========================== -->
+            <nav class="col-md-2 bg-light vh-100 p-3">
+
+                <div class="nav flex-column">
+
+                    <a
+                        href="/dashboard"
+                        class="nav-link"
+                    >
+                        Dashboard
+                    </a>
+
+                    <a
+                        href="/bug-reports"
+                        class="nav-link active"
+                    >
+                        Bug Reports
+                    </a>
+
+                    <a
+                        href="/user-feedback"
+                        class="nav-link"
+                    >
+                        User Feedback
+                    </a>
+
+                    <a
+                        href="/users"
+                        class="nav-link"
+                        id="menuUsers"
+                    >
+                        Master User
+                    </a>
+
+                </div>
+
+            </nav>
+
+
+            <!-- =========================
+                 CONTENT
+            ========================== -->
+            <main class="col-md-10 p-4">
+
+                <!-- Page Title -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+
+                    <div>
+                        <h3 class="mb-1">
+                            Bug Reports
+                        </h3>
+
+                        <p class="text-muted mb-0">
+                            Kelola dan pantau laporan bug dari digital channel.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <!-- =========================
+                     SEARCH & FILTER
+                ========================== -->
+                <div class="card shadow-sm mb-4">
+
+                    <div class="card-body">
+
+                        <div class="row g-3">
+
+                            <!-- Search -->
+                            <div class="col-md-5">
+
+                                <label
+                                    for="searchInput"
+                                    class="form-label"
+                                >
+                                    Cari Bug
+                                </label>
+
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    id="searchInput"
+                                    placeholder="Cari berdasarkan judul atau deskripsi..."
+                                >
+
+                            </div>
+
+
+                            <!-- Severity -->
+                            <div class="col-md-2">
+
+                                <label
+                                    for="filterSeverity"
+                                    class="form-label"
+                                >
+                                    Severity
+                                </label>
+
+                                <select
+                                    class="form-select"
+                                    id="filterSeverity"
+                                >
+
+                                    <option value="">
+                                        Semua Severity
+                                    </option>
+
+                                    <option value="critical">
+                                        Critical
+                                    </option>
+
+                                    <option value="high">
+                                        High
+                                    </option>
+
+                                    <option value="medium">
+                                        Medium
+                                    </option>
+
+                                    <option value="low">
+                                        Low
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <!-- Status -->
+                            <div class="col-md-2">
+
+                                <label
+                                    for="filterStatus"
+                                    class="form-label"
+                                >
+                                    Status
+                                </label>
+
+                                <select
+                                    class="form-select"
+                                    id="filterStatus"
+                                >
+
+                                    <option value="">
+                                        Semua Status
+                                    </option>
+
+                                    <option value="new">
+                                        New
+                                    </option>
+
+                                    <option value="assigned">
+                                        Assigned
+                                    </option>
+
+                                    <option value="in_progress">
+                                        In Progress
+                                    </option>
+
+                                    <option value="fixed">
+                                        Fixed
+                                    </option>
+
+                                    <option value="retesting">
+                                        Retesting
+                                    </option>
+
+                                    <option value="verified">
+                                        Verified
+                                    </option>
+
+                                    <option value="closed">
+                                        Closed
+                                    </option>
+
+                                    <option value="reopened">
+                                        Reopened
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <!-- Filter Button -->
+                            <div class="col-md-2 d-flex align-items-end">
+
+                                <button
+                                    class="btn btn-primary w-100"
+                                    id="btnFilter"
+                                >
+                                    Filter
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =========================
+                     BUG REPORT TABLE
+                ========================== -->
+                <div class="card shadow-sm">
+
+                    <div class="card-body">
+
+                        <div class="table-responsive">
+
+                            <table class="table table-bordered table-hover align-middle mb-0">
+
+                                <thead class="table-dark">
+
+                                    <tr>
+
+                                        <th>
+                                            Judul
+                                        </th>
+
+                                        <th>
+                                            Severity
+                                        </th>
+
+                                        <th>
+                                            Priority
+                                        </th>
+
+                                        <th>
+                                            Status
+                                        </th>
+
+                                        <th>
+                                            Reporter
+                                        </th>
+
+                                        <th>
+                                            Tanggal
+                                        </th>
+
+                                    </tr>
+
+                                </thead>
+
+
+                                <tbody id="bugTableBody">
+
+                                    <tr>
+
+                                        <td
+                                            colspan="6"
+                                            class="text-center"
+                                        >
+                                            Memuat data...
+
+                                        </td>
+
+                                    </tr>
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =========================
+                     PAGINATION
+                ========================== -->
+                <nav class="mt-4">
+
+                    <ul
+                        class="pagination justify-content-center"
+                        id="pagination"
+                    >
+
+                    </ul>
+
+                </nav>
+
+            </main>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================
+         JAVASCRIPT
+    ========================== -->
+
+    <!-- Auth Guard -->
+    <script src="/static/js/auth-guard.js"></script>
+
+    <!-- Bug Reports JS -->
+    <!-- File ini akan kita buat di langkah berikutnya -->
+    <script src="/static/js/bug-reports.js"></script>
+
+</body>
+</html>
